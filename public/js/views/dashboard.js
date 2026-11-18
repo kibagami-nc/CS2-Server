@@ -101,7 +101,7 @@ export function mount(el, { store, on, navigate }) {
     const pub = s.publicAddress || store.network?.public;
     items.push(
       pub
-        ? `<div class="connect-item"><span class="where">Internet</span>
+        ? `<div class="connect-item" title="Pour tes amis hors de chez toi. Depuis ce PC ou ton réseau, utilise l'adresse locale : beaucoup de box ne savent pas renvoyer vers leur propre IP publique."><span class="where">Internet (amis)</span>
              <code>connect ${esc(pub)}:${s.port}${esc(suffix)}</code>
              <button class="btn btn-sm btn-icon" data-copy="connect ${esc(pub)}:${s.port}${esc(suffix)}" title="Copier">${icon('copy', 15)}</button></div>`
         : `<div class="connect-item"><span class="where">Internet</span>

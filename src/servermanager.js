@@ -377,9 +377,18 @@ class ServerManager extends EventEmitter {
   async getRcon() {
     if (this.rconClient) return this.rconClient;
     if (!this.pid || !this.port) throw new Error('serveur non lancé');
-    const host = (await listeningTcpHost(this.pid, this.port)) || '127.0.0.1';
-    this.rconClient = new Rcon({ host, port: this.port, password: this.rconPassword });
-    return this.rconClient;
+    // Une seule découverte à la fois : deux appels simultanés ouvriraient deux connexions RCON.
+    if (!this.rconPending) {
+      this.rconPending = listeningTcpHost(this.pid, this.port)
+        .then((host) => {
+          this.rconClient = new Rcon({ host: host || '127.0.0.1', port: this.port, password: this.rconPassword });
+          return this.rconClient;
+        })
+        .finally(() => {
+          this.rconPending = null;
+        });
+    }
+    return this.rconPending;
   }
 
   async rconExec(command) {

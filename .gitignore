@@ -1,0 +1,5 @@
+node_modules/
+# Configuration locale : mot de passe du panel, tokens GSLT, mots de passe RCON…
+data/
+.claude/
+*.log

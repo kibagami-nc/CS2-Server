@@ -1,0 +1,20 @@
+{
+  "name": "cs2-home-panel",
+  "version": "1.0.0",
+  "description": "Panel web pour créer et gérer un serveur Counter-Strike 2 hébergé sur son propre PC (Windows).",
+  "main": "src/server.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch-path=src src/server.js"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "express": "^4.22.3",
+    "socket.io": "^4.8.4"
+  }
+}

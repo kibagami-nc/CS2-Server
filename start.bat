@@ -23,4 +23,5 @@ if not exist node_modules (
 )
 
 node src\server.js --open
-pause
+rem En cas d'erreur, la fenetre reste ouverte pour pouvoir lire le message.
+if errorlevel 1 pause

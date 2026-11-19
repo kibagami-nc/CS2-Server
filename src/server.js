@@ -271,10 +271,24 @@ const host = process.env.PANEL_HOST || panelHost;
 const portArg = process.argv.find((a) => a.startsWith('--port='));
 const port = Number(portArg?.slice('--port='.length)) || Number(process.env.PANEL_PORT) || panelPort;
 
-httpServer.on('error', (e) => {
-  if (e.code === 'EADDRINUSE') {
-    console.error(`\n  Le port ${port} est déjà utilisé : le panel tourne peut-être déjà ? (http://localhost:${port})\n`);
-  } else console.error(e);
+const openBrowser = (url) => spawn('cmd', ['/c', 'start', '', url], { detached: true, stdio: 'ignore' }).unref();
+
+httpServer.on('error', async (e) => {
+  if (e.code !== 'EADDRINUSE') {
+    console.error(e);
+    process.exit(1);
+  }
+  const url = `http://localhost:${port}`;
+  // Double-clic sur le lanceur alors que le panel tourne déjà : on ouvre simplement le navigateur.
+  const alreadyPanel = await fetch(`${url}/api/auth/status`, { signal: AbortSignal.timeout(2000) })
+    .then((r) => r.ok)
+    .catch(() => false);
+  if (alreadyPanel) {
+    console.log(`\n  Le panel tourne déjà : ouverture de ${url}\n`);
+    if (process.argv.includes('--open')) openBrowser(url);
+    process.exit(0);
+  }
+  console.error(`\n  Le port ${port} est déjà utilisé par un autre programme. Change le port du panel dans data/settings.json.\n`);
   process.exit(1);
 });
 
@@ -290,7 +304,7 @@ httpServer.listen(port, host, async () => {
   }
   console.log('  (Ctrl+C pour fermer le panel — le serveur CS2 continue de tourner)\n');
   await manager.attach().catch((e) => console.error('Reprise du serveur impossible :', e.message));
-  if (process.argv.includes('--open')) spawn('cmd', ['/c', 'start', '', url], { detached: true, stdio: 'ignore' }).unref();
+  if (process.argv.includes('--open')) openBrowser(url);
 });
 
 process.on('SIGINT', () => {
